@@ -41,8 +41,8 @@ long getDistance(int trig, int echo) {
 
 // Function to move forward
 void moveForward() {
-    analogWrite(enA, 100); // Motor speed
-    analogWrite(enB, 100);
+    analogWrite(enA, 85); // Motor speed
+    analogWrite(enB, 85);
     digitalWrite(in1, HIGH);
     digitalWrite(in2, LOW);
     digitalWrite(in3, HIGH);
@@ -51,8 +51,8 @@ void moveForward() {
 
 // Function to move backward
 void moveBackward() {
-    analogWrite(enA, 170);
-    analogWrite(enB, 170);
+    analogWrite(enA, 80);
+    analogWrite(enB, 80);
     digitalWrite(in1, LOW);
     digitalWrite(in2, HIGH);
     digitalWrite(in3, LOW);
@@ -61,8 +61,8 @@ void moveBackward() {
 
 // Function to turn right
 void turnRight() {
-    analogWrite(enA, 170);
-    analogWrite(enB, 170);
+    analogWrite(enA, 80);
+    analogWrite(enB, 80);
     digitalWrite(in1, HIGH);
     digitalWrite(in2, LOW);
     digitalWrite(in3, LOW);
@@ -71,8 +71,8 @@ void turnRight() {
 
 // Function to turn left
 void turnLeft() {
-    analogWrite(enA, 170);
-    analogWrite(enB, 170);
+    analogWrite(enA, 85);
+    analogWrite(enB, 85);
     digitalWrite(in1, LOW);
     digitalWrite(in2, HIGH);
     digitalWrite(in3, HIGH);
@@ -91,25 +91,31 @@ void stopMoving() {
 void extinguishFire() {
     stopMoving();
     digitalWrite(waterPump, HIGH);
-    while(analogRead(fireFront)<threshold||analogRead(fireRight)<threshold||analogRead(fireLeft)<threshold){
+    while(1){
     int pos;
     Serial.print("Fire Right: ");
-    Serial.print(analogRead(fireLeft));
+    Serial.print(analogRead(fireRight));
     Serial.print("  Fire Front: ");
     Serial.print(analogRead(fireFront));
     Serial.print("  Fire Left: ");
-    Serial.println(analogRead(fireRight));
-    for (pos = 0; pos <= 150; pos += 1) { // goes from 0 degrees to 180 degrees
+    Serial.println(analogRead(fireLeft));
+    for (pos = 0; pos <= 70; pos += 1) { // goes from 0 degrees to 150 degrees
     // in steps of 1 degree
     nozzle.write(pos);              // tell servo to go to position in variable 'pos'
     delay(10);                       // waits 10 ms for the servo to reach the position
   }
-  for (pos = 150; pos >= 0; pos -= 1) { // goes from 150 degrees to 0 degrees
+  for (pos = 70; pos >= 0; pos -= 1) { // goes from 150 degrees to 0 degrees
     nozzle.write(pos);              // tell servo to go to position in variable 'pos'
     delay(10);                       // waits 10 ms for the servo to reach the position
-  }}
-  nozzle.write(75);
-    digitalWrite(waterPump, LOW);
+  }
+  int fireR = analogRead(fireRight);
+  int fireF = analogRead(fireFront);
+  int fireL = analogRead(fireLeft);
+  Serial.print(fireF < 200);
+  Serial.print(fireL < 200);
+  Serial.print(fireR < 200);
+  if (fireF < 200 || fireR < 200 || fireL < 200) {continue;} else break;
+  }
 }
 
 void setup() {
@@ -140,7 +146,7 @@ void setup() {
     pinMode(buzzer, OUTPUT);
     pinMode(waterPump, OUTPUT);
     nozzle.attach(servoPin);
-    nozzle.write(75); // Default position
+    nozzle.write(35); // Default position
     digitalWrite(waterPump, LOW);
     digitalWrite(buzzer, LOW);
     Serial.begin(9600);
@@ -156,14 +162,18 @@ void loop() {
     int fireL = analogRead(fireLeft);
 
     // Check for fire
-    if (fireF < 200 || fireR < 200 || fireL < 200) {
+    if (fireF < 400 || fireR < 400 || fireL < 400) {
         Serial.println("Fire Detected!");
         moveForward();
-        if (fireF < 50 || fireR < 50 || fireL < 50) {
+        if (fireF < 40 || fireR < 40 || fireL < 40) {
             digitalWrite(buzzer, HIGH); // Buzzer ON
             delay(500);
             digitalWrite(buzzer, LOW); // Buzzer OFF
+            moveBackward();
+            delay(500);
             extinguishFire();
+            nozzle.write(35);
+            digitalWrite(waterPump, LOW);
             return; // Resume navigation after extinguishing
         }
     } else {
