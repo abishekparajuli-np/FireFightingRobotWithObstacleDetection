@@ -3,5 +3,5 @@ This project is an autonomous Firefighting Robot designed as part of the Fundame
 Team Members
 Abishek Parajuli
 Agraj Chapagain
-Abinash Acharya
+Abinash Adhikari
 Aditya Parihat
