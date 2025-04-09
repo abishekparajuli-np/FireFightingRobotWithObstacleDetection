@@ -1,3 +1,5 @@
+/*This is the code to run  a fire fighting robot with obstacle detection here the first priority is given to flame sensor than ultrasonic sensor
+Written By: Abishek Parajuli, Agraj Chapagain, Abinash Adhikari, Aditya Parihat*/
 #include <Servo.h>
 
 // Motor driver L298N pins
